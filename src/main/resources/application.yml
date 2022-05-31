@@ -1,0 +1,65 @@
+server:
+  servlet:
+    context-path: /
+  port: 8081
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/community
+    username: root
+    password: root
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:sql/*.sql
+  mail:
+    host: smtp.163.com
+    port: 465
+    username:
+    password:
+    properties:
+      mail:
+        smtp:
+          connectiontimeout: 10000
+          timeout: 10000
+          writetimeout: 10000
+          ssl:
+            enable: true
+  redis:
+    database: 1
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.voidsow.community.backend.entity
+
+
+logging:
+  level:
+    com.voidsow.community.CommunityApplicationTests: warn
+
+test:
+  mail:
+    to:
+
+community:
+  # 社区名
+  brand: Café Stella
+  # 域名
+  domain: http://localhost:8080
+  path:
+    upload: C:/Users/voidsow/Desktop
+  # 分页配置
+  page:
+    # 页大小
+    size: 5
+    # 页数量
+    num: 5
+  token:
+    # token的有效时间，单位为秒
+    duration:
+      # 会话级
+      session: 1800
+      # 长期有效时间
+      long-term: 2592000 #30*24*3600
