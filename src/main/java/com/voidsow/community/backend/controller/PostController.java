@@ -4,6 +4,7 @@ import com.voidsow.community.backend.dto.CommentDTO;
 import com.voidsow.community.backend.dto.PostDTO;
 import com.voidsow.community.backend.dto.Result;
 import com.voidsow.community.backend.entity.Comment;
+import com.voidsow.community.backend.entity.Factory;
 import com.voidsow.community.backend.entity.Post;
 import com.voidsow.community.backend.entity.User;
 import com.voidsow.community.backend.service.CommentService;
@@ -21,7 +22,7 @@ import java.util.*;
 import static com.voidsow.community.backend.constant.Constant.*;
 
 @RestController
-@RequestMapping("/post")
+@RequestMapping(value = "/post", produces = MediaType.APPLICATION_JSON_VALUE)
 public class PostController {
     PostService postService;
     UserService userService;
@@ -40,7 +41,7 @@ public class PostController {
         this.hostHolder = hostHolder;
     }
 
-    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/{id}")
     public Result getPost(@PathVariable("id") int id, int page, @RequestParam("size") int pageSize) {
         Post post = postService.get(id);
         User user = hostHolder.user.get();
@@ -79,26 +80,23 @@ public class PostController {
             commentDTOS.add(commentDTO);
         }
         map.put("comments", commentDTOS);
-        map.put("author", userService.findById(post.getUid()));
+        map.put("author", userService.findByIdToDTO(userService.findById(post.getUid()), user));
         map.put("lastPage", Math.ceil(1.0 * commentService.getCount(POST_LEVEL_ONE, id) / pageSize));
         return new Result(200, "ok", map);
     }
 
-    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public Result addPost(@RequestBody Post post) {
+    @PostMapping
+    public Result addPost(@RequestBody PostDTO postDTO) {
         User user = hostHolder.user.get();
-        if (post.getTitle() == null || post.getTitle().isBlank())
-            return new Result(400, "标题不能为空", null);
-        else if (post.getContent() == null || post.getContent().isBlank())
-            return new Result(400, "内容不能为空", null);
+        if (postDTO.getTitle() == null || postDTO.getTitle().isBlank())
+            return new Result(INVALID, "标题不能为空", null);
+        else if (postDTO.getContent() == null || postDTO.getContent().isBlank())
+            return new Result(INVALID, "内容不能为空", null);
         else if (user == null)
-            return new Result(403, "尚未登录", null);
-        post.setUid(user.getId());
-        Date curTime = new Date();
-        post.setGmtCreate(curTime);
-        post.setGmtModified(curTime);
+            return new Result(ILLEGAL, "尚未登录", null);
+        Post post = Factory.newPost(user.getId(), postDTO.getTitle(), postDTO.getContent());
         postService.add(post);
-        return new Result(0, "发布成功", null);
+        BeanUtils.copyProperties(post, postDTO);
+        return Result.getSuccess(postDTO);
     }
 }

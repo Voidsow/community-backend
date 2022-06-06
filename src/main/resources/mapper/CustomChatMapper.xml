@@ -3,20 +3,23 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.voidsow.community.backend.mapper.CustomChatMapper">
-    <resultMap id="conversations" type="map">
-        <result property="last" column="last"/>
+    <resultMap id="conversations" type="com.voidsow.community.backend.dto.Conversation">
+        <result property="last.id" column="last"/>
         <result property="count" column="count"/>
         <result property="unread" column="unread" javaType="int"/>
     </resultMap>
 
     <select id="getConversations" resultMap="conversations">
         # Mybatis会将sum()的结果映射为BigDecimal,需要手动配置映射结果
-        select max(id) as last, count(*) as count, sum(if(status = 0 and listener = #{uid}, 1, 0)) as unread
+        select max(id)                                         as last,
+               count(*)                                        as count,
+               max(gmt_create)                                 as lastTime,
+               sum(if(status = 0 and listener = #{uid}, 1, 0)) as unread
         from chat
         where status != 2
           and (speaker = #{uid} or listener = #{uid} and speaker != 1)
         group by conversation_id
-        limit #{offset},#{limit};
+        order by unread desc, lastTime desc;
     </select>
 
     <select id="countConversations" resultType="int">

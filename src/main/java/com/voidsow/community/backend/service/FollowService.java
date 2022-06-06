@@ -46,33 +46,28 @@ public class FollowService {
         this.redisTemplate = redisTemplate;
     }
 
-    public void follow(int userId, int followeeId) {
+    //将关注状态取反，并返回取反后的状态
+    public boolean followOrNot(int userId, int followeeId) {
         String followeeKey = getKey(userId, FOLLOWEE);
         String followerKey = getKey(followeeId, FOLLOWER);
+        boolean isFollowed = isFollower(followeeId, userId);
+        //实际上不存在竞争关系，Redis指令是原子性的
         redisTemplate.execute(new SessionCallback<>() {
             @Override
             public List<Object> execute(RedisOperations operations) throws DataAccessException {
                 operations.multi();
                 Date now = new Date();
-                operations.opsForZSet().add(followeeKey, followeeId, now.getTime());
-                operations.opsForZSet().add(followerKey, userId, now.getTime());
+                if (isFollowed) {
+                    operations.opsForZSet().remove(followeeKey, followeeId);
+                    operations.opsForZSet().remove(followerKey, userId);
+                } else {
+                    operations.opsForZSet().add(followeeKey, followeeId, now.getTime());
+                    operations.opsForZSet().add(followerKey, userId, now.getTime());
+                }
                 return redisTemplate.exec();
             }
         });
-    }
-
-    public void cancelFollow(int userId, int followeeId) {
-        String followeeKey = getKey(userId, FOLLOWEE);
-        String followerKey = getKey(followeeId, FOLLOWER);
-        redisTemplate.execute(new SessionCallback<List<Object>>() {
-            @Override
-            public List<Object> execute(RedisOperations operations) throws DataAccessException {
-                operations.multi();
-                operations.opsForZSet().remove(followeeKey, followeeId);
-                operations.opsForZSet().remove(followerKey, userId);
-                return redisTemplate.exec();
-            }
-        });
+        return !isFollowed;
     }
 
     public boolean isFollower(int followee, int follower) {

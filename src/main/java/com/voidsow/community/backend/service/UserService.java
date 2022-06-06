@@ -3,6 +3,7 @@ package com.voidsow.community.backend.service;
 import com.voidsow.community.backend.constant.Activation;
 import com.voidsow.community.backend.constant.Constant;
 import com.voidsow.community.backend.dto.Result;
+import com.voidsow.community.backend.dto.UserDTO;
 import com.voidsow.community.backend.entity.User;
 import com.voidsow.community.backend.entity.UserExample;
 import com.voidsow.community.backend.mapper.UserMapper;
@@ -25,12 +26,16 @@ import static com.voidsow.community.backend.utils.Authorizer.generateUUID;
 
 @Service
 public class UserService {
+    FollowService followService;
+    LikeService likeService;
     UserMapper userMapper;
     MailClient mailClient;
     Key key;
 
     @Autowired
-    public UserService(UserMapper userMapper, MailClient mailClient, Key key) {
+    public UserService(FollowService followService, LikeService likeService, UserMapper userMapper, MailClient mailClient, Key key) {
+        this.followService = followService;
+        this.likeService = likeService;
         this.userMapper = userMapper;
         this.mailClient = mailClient;
         this.key = key;
@@ -40,10 +45,12 @@ public class UserService {
         return userMapper.selectByPrimaryKey(id);
     }
 
-    public User findByName(String username) {
-        UserExample userExample = new UserExample();
-        userExample.or().andUsernameEqualTo(username);
-        return userMapper.selectByExample(userExample).get(0);
+    public UserDTO findByIdToDTO(User observed, User user) {
+        return new UserDTO(observed,
+                followService.countFollowee(observed.getId()),
+                followService.countFollower(observed.getId()),
+                user != null && followService.isFollower(observed.getId(), user.getId()),
+                likeService.getLike(observed.getId()));
     }
 
     public Map<String, Object> register(User user, String confirmPsw) throws MessagingException {

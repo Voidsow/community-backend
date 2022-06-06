@@ -5,6 +5,11 @@ public final class Constant {
     static public int UNACTIVATED = 0;
     static public int NORMAL = 1;
 
+    //帖子类型
+    static public int NORMAL_POST = 0;
+    static public int STICKY_POST = 1;
+    static public int STAR_POST = 1;
+
     //用户类型
     static public int COMMON = 0;
 
@@ -22,8 +27,10 @@ public final class Constant {
 
     //通信状态码
     static public int SUCCESS = 200;
-    static public int INCORRECT = 400;
-    static public int EXPIRED = 400;
-    static public int INVALID = 400;
-    static public int ILLEGAL = 401;
+    static public int INCORRECT = 600;
+    static public int EXPIRED = 601;
+    static public int INVALID = 602;
+    static public int ILLEGAL = 603;
+    static public int RESOURCE_NOT_FOUND = 404;
+    static public int NOT_SUPPORT = 405;
 }
