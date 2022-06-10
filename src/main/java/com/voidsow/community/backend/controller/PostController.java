@@ -49,22 +49,22 @@ public class PostController {
         Map<String, Object> map = new HashMap<>();
         PostDTO postDTO = new PostDTO();
         BeanUtils.copyProperties(post, postDTO);
-        postDTO.setLikeNum(likeService.likeNum(POST, post.getId()));
-        postDTO.setLike(login && likeService.like(POST, post.getId(), user.getId()));
+        postDTO.setLikeNum(likeService.likeNum(LIKE_POST, post.getId()));
+        postDTO.setLike(login && likeService.like(LIKE_POST, post.getId(), user.getId()));
         map.put("post", postDTO);
         //一级评论列表
         List<CommentDTO> commentDTOS = new ArrayList<>();
-        List<Comment> comments = commentService.find(POST_LEVEL_ONE, id, (page - 1) * pageSize, pageSize);
+        List<Comment> comments = commentService.find(COMMENT_LEVEL_ONE, id, (page - 1) * pageSize, pageSize);
         for (var comment : comments) {
             //二级评论列表
-            List<Comment> subComments = commentService.find(POST_LEVEL_TWO,
+            List<Comment> subComments = commentService.find(COMMENT_LEVEL_TWO,
                     comment.getId(), 0, Integer.MAX_VALUE);
             List<CommentDTO> subCommentDTOs = new ArrayList<>();
             for (var subComment : subComments) {
                 CommentDTO subCommentDTO = new CommentDTO();
                 BeanUtils.copyProperties(subComment, subCommentDTO);
-                subCommentDTO.setLikeNum(likeService.likeNum(COMMENT, subComment.getId()));
-                subCommentDTO.setLike(login && likeService.like(COMMENT, subComment.getId(), user.getId()));
+                subCommentDTO.setLikeNum(likeService.likeNum(LIKE_COMMENT, subComment.getId()));
+                subCommentDTO.setLike(login && likeService.like(LIKE_COMMENT, subComment.getId(), user.getId()));
                 subCommentDTO.setUser(userService.findById(subComment.getUid()));
                 subCommentDTO.setTarget(subComment.getReplyToUid() == null ? null :
                         userService.findById(subComment.getReplyToUid()));
@@ -75,13 +75,13 @@ public class PostController {
             commentDTO.setUser(userService.findById(comment.getUid()));
             commentDTO.setSubComments(subCommentDTOs);
             commentDTO.setCommentNum(subComments.size());
-            commentDTO.setLikeNum(likeService.likeNum(COMMENT, comment.getId()));
-            commentDTO.setLike(login && likeService.like(COMMENT, comment.getId(), user.getId()));
+            commentDTO.setLikeNum(likeService.likeNum(LIKE_COMMENT, comment.getId()));
+            commentDTO.setLike(login && likeService.like(LIKE_COMMENT, comment.getId(), user.getId()));
             commentDTOS.add(commentDTO);
         }
         map.put("comments", commentDTOS);
         map.put("author", userService.findByIdToDTO(userService.findById(post.getUid()), user));
-        map.put("lastPage", Math.ceil(1.0 * commentService.getCount(POST_LEVEL_ONE, id) / pageSize));
+        map.put("lastPage", Math.ceil(1.0 * commentService.getCount(COMMENT_LEVEL_ONE, id) / pageSize));
         return new Result(200, "ok", map);
     }
 

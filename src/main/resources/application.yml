@@ -27,6 +27,11 @@ spring:
             enable: true
   redis:
     database: 1
+  rabbitmq:
+    host: localhost
+    listener:
+      direct:
+        acknowledge-mode: none
 
 mybatis:
   configuration:

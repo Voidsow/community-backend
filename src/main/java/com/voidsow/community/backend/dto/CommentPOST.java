@@ -7,5 +7,6 @@ public class CommentPOST {
     int pid;
     String content;
     Integer replyTo;
+    Integer atCommentId;
     Integer replyToUid;
 }

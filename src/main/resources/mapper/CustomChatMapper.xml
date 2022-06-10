@@ -54,4 +54,11 @@
             #{id}
         </foreach>
     </update>
+
+    <select id="getNotifications" resultType="Chat">
+        select *
+        from chat
+        where listener = #{uid}
+          and conversation_id = #{type};
+    </select>
 </mapper>

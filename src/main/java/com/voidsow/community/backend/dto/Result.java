@@ -23,4 +23,8 @@ public class Result {
     public static Result notSupport() {
         return new Result(NOT_SUPPORT, "request not support", null);
     }
+
+    public static Result illegalAccess() {
+        return new Result(ILLEGAL, "illegal access", null);
+    }
 }

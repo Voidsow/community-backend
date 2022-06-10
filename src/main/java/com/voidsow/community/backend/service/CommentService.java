@@ -17,7 +17,7 @@ import org.springframework.web.util.HtmlUtils;
 import java.util.Date;
 import java.util.List;
 
-import static com.voidsow.community.backend.constant.Constant.POST_LEVEL_ONE;
+import static com.voidsow.community.backend.constant.Constant.COMMENT_LEVEL_ONE;
 
 @Service
 public class CommentService {
@@ -30,6 +30,10 @@ public class CommentService {
         this.commentMapper = commentMapper;
         this.customCommentMapper = customCommentMapper;
         this.postMapper = postMapper;
+    }
+
+    public Comment findBydId(int id) {
+        return commentMapper.selectByPrimaryKey(id);
     }
 
     public List<Comment> find(int type, int replyTo, int offset, int limit) {
@@ -46,22 +50,22 @@ public class CommentService {
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
-    public int add(Comment comment, int postId) {
+    public int add(Comment comment) {
         Date curTime = new Date();
         comment.setGmtCreate(curTime);
         comment.setGmtModified(curTime);
         comment.setContent(HtmlUtils.htmlEscape(comment.getContent()));
-        //返回主键
-        int id = customCommentMapper.insert(comment);
+        customCommentMapper.insert(comment);
         Post newValPost = new Post();
-        newValPost.setId(postId);
+        newValPost.setId(comment.getPostId());
         //修改最后回帖时间
         newValPost.setGmtModified(new Date());
         //若为一级评论则更新Post的commentNum字段
-        if (comment.getType() == POST_LEVEL_ONE)
+        if (comment.getType() == COMMENT_LEVEL_ONE)
             newValPost.setCommentNum(postMapper.selectByPrimaryKey(
                     comment.getReplyTo()).getCommentNum() + 1);
         postMapper.updateByPrimaryKeySelective(newValPost);
-        return id;
+        //返回主键
+        return comment.getId();
     }
 }

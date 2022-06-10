@@ -12,18 +12,20 @@ public final class Constant {
 
     //用户类型
     static public int COMMON = 0;
+    static public int SYSTEM = 1;
 
-    //评论类型
-    static public int POST_LEVEL_ONE = 0;
-    static public int POST_LEVEL_TWO = 1;
+    //实体类型
+    static public int COMMENT_LEVEL_ONE = 0;
+    static public int COMMENT_LEVEL_TWO = 1;
+    static public int POST = 2;
 
     //消息状态
     static public int UNREAD = 0;
     static public int READ = 1;
 
     //点赞类型
-    static public int POST = 0;
-    static public int COMMENT = 1;
+    static public int LIKE_POST = 0;
+    static public int LIKE_COMMENT = 1;
 
     //通信状态码
     static public int SUCCESS = 200;
@@ -33,4 +35,15 @@ public final class Constant {
     static public int ILLEGAL = 603;
     static public int RESOURCE_NOT_FOUND = 404;
     static public int NOT_SUPPORT = 405;
+
+    //消息队列
+    static public String EXCHANGE_NAME = "community";
+    static public String TOPIC_COMMENT = "comment";
+    static public String TOPIC_LIKE = "like";
+    static public String TOPIC_FOLLOW = "follow";
+
+    //通知类型
+    static public int LIKE = 0;
+    static public int COMMENT = 1;
+    static public int FOLLOW = 2;
 }

@@ -100,7 +100,7 @@ public class ChatController {
         message.setSpeaker(hostHolder.user.get().getId());
         if (to == null)
             return new Result(404, "收信人不存在", null);
-        chatService.sendMessage(message);
+        chatService.sendMessage(message, true);
         return Result.getSuccess(message);
     }
 }

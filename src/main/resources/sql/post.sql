@@ -1,5 +1,5 @@
-INSERT INTO `post` (`uid`, `title`, `content`, `type`, `status`, `gmt_create`,comment_num) VALUES (3, '民族脊梁：鲁迅', '民族脊梁：鲁迅', 0, 0, '2021-12-17 10:50:08',2);
-INSERT INTO `post` (`uid`, `title`, `content`, `type`, `status`, `gmt_create`) VALUES (1, 'test0', 'this is a test post.', 0, 0, '2019-09-08 09:25:24');
+INSERT INTO `post` (`uid`, `title`, `content`, `type`, `status`, `gmt_create`,comment_num) VALUES (4, '民族脊梁：鲁迅', '民族脊梁：鲁迅', 0, 0, '2021-12-17 10:50:08',2);
+INSERT INTO `post` (`uid`, `title`, `content`, `type`, `status`, `gmt_create`) VALUES (2, 'test0', 'this is a test post.', 0, 0, '2019-09-08 09:25:24');
 INSERT INTO `post` (`uid`, `title`, `content`, `type`, `status`, `gmt_create`) VALUES (2, 'test1', 'this is a test post.', 0, 0, '2019-09-08 09:25:24');
 INSERT INTO `post` (`uid`, `title`, `content`, `type`, `status`, `gmt_create`) VALUES (3, 'test2', 'this is a test post.', 0, 0, '2019-09-08 09:25:24');
 INSERT INTO `post` (`uid`, `title`, `content`, `type`, `status`, `gmt_create`) VALUES (32, 'Flexible settings enable you to set up a custom                 ', 'If opportunity doesn’t knock, build a door. Export Wizard allows you to export data from tables, collections, views, or query results to any available formats.', 0, 0, '2013-03-15 08:12:44');

@@ -43,10 +43,11 @@ public class ChatService {
         return customChatMapper.countConversation(conversationId);
     }
 
-    public void sendMessage(Chat message) {
+    public void sendMessage(Chat message, boolean escape) {
         int from = message.getSpeaker(), to = message.getListener();
         message.setConversationId(from < to ? from + "_" + to : to + "_" + from);
-        message.setContent(HtmlUtils.htmlEscape(message.getContent()));
+        if (escape)
+            message.setContent(HtmlUtils.htmlEscape(message.getContent()));
         message.setStatus(UNREAD);
         message.setGmtCreate(new Date());
         chatMapper.insertSelective(message);
@@ -54,5 +55,9 @@ public class ChatService {
 
     public void setRead(List<Integer> ids) {
         customChatMapper.updateMsgStatus(ids, READ);
+    }
+
+    public void getNotification(String topic, int uid) {
+        return ;
     }
 }

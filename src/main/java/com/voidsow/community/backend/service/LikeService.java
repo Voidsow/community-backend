@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.voidsow.community.backend.constant.Constant.POST;
+import static com.voidsow.community.backend.constant.Constant.LIKE_POST;
 
 @Service
 public class LikeService {
@@ -51,7 +51,7 @@ public class LikeService {
     public boolean likeOrNot(int type, int id, int userId) {
         String key = getKey(type, id);
         int likedUid;
-        if (type == POST)
+        if (type == LIKE_POST)
             likedUid = postMapper.selectByPrimaryKey(id).getUid();
         else
             likedUid = commentMapper.selectByPrimaryKey(id).getUid();

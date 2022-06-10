@@ -37,6 +37,7 @@ drop table if exists comment;
 create table comment
 (
     id           int auto_increment primary key,
+    post_id      int comment '此字段虽然是冗余的，但可以加快查询速度',
     uid          int comment '评论作者',
     type         int comment '评论类型:0表示为一级评论，1表示为二级评论',
     reply_to     int comment '回复对象的id:一级评论此字段为post的id,二级评论为被回复一级评论的id',
@@ -58,4 +59,18 @@ create table chat
     content         varchar(1024),
     status          int comment '消息状态：0 表示未读 1表示已读 2表示删除',
     gmt_create      datetime
-)
+);
+
+drop table if exists notification;
+create table notification
+(
+    id         int primary key auto_increment,
+    topic      int,
+    source_uid int,
+    to_uid     int,
+    entity_id  int,
+    props      varchar(64),
+    status     int comment '消息状态：0 表示未读 1表示已读 2表示删除',
+    time       datetime,
+    index (to_uid, topic, source_uid, entity_id)
+);

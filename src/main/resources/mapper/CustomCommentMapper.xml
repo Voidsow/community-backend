@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.voidsow.community.backend.mapper.CustomCommentMapper">
     <insert id="insert" parameterType="Comment" useGeneratedKeys="true" keyProperty="id">
-        insert into comment (uid, type, reply_to, reply_to_uid, content, gmt_create, gmt_modified)
-        values (#{uid}, #{type}, #{replyTo}, #{replyToUid}, #{content}, #{gmtCreate}, #{gmtModified});
+        insert into comment (post_id, uid, type, reply_to, reply_to_uid, content, gmt_create, gmt_modified)
+        values (#{postId}, #{uid}, #{type}, #{replyTo}, #{replyToUid}, #{content}, #{gmtCreate}, #{gmtModified});
     </insert>
 </mapper>

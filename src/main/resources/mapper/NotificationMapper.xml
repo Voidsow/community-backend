@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.voidsow.community.backend.mapper.NotificationMapper">
+    <insert id="insert" parameterType="Notification">
+        insert into notification (topic, source_uid, to_uid, entity_id, props, status, time)
+        values (#{topic}, #{sourceUid}, #{toUid}, #{entityId}, #{props}, #{status}, #{time});
+    </insert>
+
+    <select id="select" resultType="Notification">
+        select *
+        from notification
+        where
+        to_uid = #{toUid}
+        and topic = #{topic}
+        <if test="sourceUid != null">
+            and source_uid = #{sourceUid}
+        </if>
+        <if test="entityId != null">
+            and entity_id = #{entityId}
+        </if>
+        <if test="props != null">
+            and props = #{props}
+        </if>
+        ;
+    </select>
+
+    <update id="updateTime">
+        update notification
+        set time=#{time}
+        where to_Uid = #{toUid}
+          and topic = #{topic}
+          and source_uid = #{sourceUid};
+    </update>
+    <update id="updateTimeById">
+        update notification
+        set time=#{time}
+        where id = #{id};
+    </update>
+</mapper>

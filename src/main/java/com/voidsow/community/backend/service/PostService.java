@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.voidsow.community.backend.constant.Constant.POST;
+import static com.voidsow.community.backend.constant.Constant.LIKE_POST;
 
 @Service
 public class PostService {
@@ -46,8 +46,8 @@ public class PostService {
             PostDTO postDTO = new PostDTO();
             BeanUtils.copyProperties(x, postDTO);
             users.add(userMapper.selectByPrimaryKey(x.getUid()));
-            postDTO.setLikeNum((likeService.likeNum(POST, x.getId())));
-            postDTO.setLike(uid != null && likeService.like(POST, postDTO.getId(), uid));
+            postDTO.setLikeNum((likeService.likeNum(LIKE_POST, x.getId())));
+            postDTO.setLike(uid != null && likeService.like(LIKE_POST, postDTO.getId(), uid));
             postDTOS.add(postDTO);
         });
         map.put("posts", postDTOS);

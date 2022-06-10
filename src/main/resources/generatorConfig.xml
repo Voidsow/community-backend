@@ -17,7 +17,7 @@
             <property name="forceBigDecimals" value="false"/>
         </javaTypeResolver>
 
-        <javaModelGenerator targetPackage="com.voidsow.community.entity" targetProject="src/main/java">
+        <javaModelGenerator targetPackage="com.voidsow.community.backend.entity" targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
             <property name="trimStrings" value="true"/>
             <!--设置全参构造器-->
@@ -29,23 +29,23 @@
             <property name="enableSubPackages" value="true"/>
         </sqlMapGenerator>
 
-        <javaClientGenerator type="XMLMAPPER" targetPackage="com.voidsow.community.mapper"
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.voidsow.community.backend.mapper"
                              targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
-        <table tableName="user" domainObjectName="User">
-            <!--false则将列名转换为驼峰形式-->
-            <property name="useActualColumnNames" value="false"/>
-        </table>
-        <table tableName="post" domainObjectName="Post">
-            <property name="useActualColumnNames" value="false"/>
-        </table>
+        <!--        <table tableName="user" domainObjectName="User">-->
+        <!--            &lt;!&ndash;false则将列名转换为驼峰形式&ndash;&gt;-->
+        <!--            <property name="useActualColumnNames" value="false"/>-->
+        <!--        </table>-->
+        <!--        <table tableName="post" domainObjectName="Post">-->
+        <!--            <property name="useActualColumnNames" value="false"/>-->
+        <!--        </table>-->
         <table tableName="comment" domainObjectName="Comment">
             <property name="useActualColumnNames" value="false"/>
         </table>
-        <table tableName="chat" domainObjectName="Chat">
-            <property name="useActualColumnNames" value="false"/>
-        </table>
+        <!--        <table tableName="chat" domainObjectName="Chat">-->
+        <!--            <property name="useActualColumnNames" value="false"/>-->
+        <!--        </table>-->
     </context>
 </generatorConfiguration>
