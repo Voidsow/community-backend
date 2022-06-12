@@ -6,6 +6,7 @@ import com.voidsow.community.backend.entity.Notification;
 import com.voidsow.community.backend.mapper.CommentMapper;
 import com.voidsow.community.backend.mapper.NotificationMapper;
 import com.voidsow.community.backend.mapper.PostMapper;
+import com.voidsow.community.backend.repository.PostRepository;
 import com.voidsow.community.backend.service.ChatService;
 import com.voidsow.community.backend.service.NotifyService;
 import org.springframework.amqp.core.Message;
@@ -23,15 +24,17 @@ public class EventConsumer {
     ChatService chatService;
     ObjectMapper objectMapper;
     NotifyService notifyService;
+    PostRepository postRepository;
     NotificationMapper notificationMapper;
     PostMapper postMapper;
     CommentMapper commentMapper;
 
     @Autowired
-    public EventConsumer(ObjectMapper objectMapper, ChatService chatService, NotifyService notifyService, NotificationMapper notificationMapper, PostMapper postMapper,
-                         CommentMapper commentMapper) {
+    public EventConsumer(ObjectMapper objectMapper, ChatService chatService, NotifyService notifyService, PostRepository postRepository,
+                         NotificationMapper notificationMapper, PostMapper postMapper, CommentMapper commentMapper) {
         this.objectMapper = objectMapper;
         this.chatService = chatService;
+        this.postRepository = postRepository;
         this.notifyService = notifyService;
         this.notificationMapper = notificationMapper;
         this.postMapper = postMapper;
@@ -76,5 +79,12 @@ public class EventConsumer {
             //只有点赞和关注需要更新
             notificationMapper.updateTimeById(notifications.get(0).getId(), event.getTime());
         }
+    }
+
+    @RabbitListener(queues = {"search"})
+    public void consumeSearch(Message message) throws IOException {
+        Event event = objectMapper.readValue(message.getBody(), Event.class);
+        Integer postId = (Integer) event.getProperty("id");
+        postRepository.save(postMapper.selectByPrimaryKey(postId));
     }
 }

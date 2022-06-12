@@ -32,6 +32,8 @@ spring:
     listener:
       direct:
         acknowledge-mode: none
+  elasticsearch:
+    
 
 mybatis:
   configuration:

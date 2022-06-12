@@ -91,7 +91,8 @@ public class CommentController {
                     addProperty("id", entityid);//被回复实体的id
             producer.fireEvent(event);
         }
-
+        //发送消息更新elastic中的数据
+        producer.fireEvent(new Event().setTopic(TOPIC_ELASTIC_SEARCH).addProperty("id", commentPOST.getPid()));
         //返回生成的评论
         CommentDTO commentDTO = new CommentDTO();
         BeanUtils.copyProperties(comment, commentDTO);

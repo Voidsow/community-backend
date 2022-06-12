@@ -1,12 +1,11 @@
 package com.voidsow.community.backend.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.voidsow.community.backend.dto.CommentDTO;
 import com.voidsow.community.backend.dto.PostDTO;
 import com.voidsow.community.backend.dto.Result;
-import com.voidsow.community.backend.entity.Comment;
-import com.voidsow.community.backend.entity.Factory;
-import com.voidsow.community.backend.entity.Post;
-import com.voidsow.community.backend.entity.User;
+import com.voidsow.community.backend.entity.*;
+import com.voidsow.community.backend.event.EventProducer;
 import com.voidsow.community.backend.service.CommentService;
 import com.voidsow.community.backend.service.LikeService;
 import com.voidsow.community.backend.service.PostService;
@@ -28,6 +27,7 @@ public class PostController {
     UserService userService;
     CommentService commentService;
     LikeService likeService;
+    EventProducer eventProducer;
     private HostHolder hostHolder;
 
     @Autowired
@@ -86,7 +86,7 @@ public class PostController {
     }
 
     @PostMapping
-    public Result addPost(@RequestBody PostDTO postDTO) {
+    public Result addPost(@RequestBody PostDTO postDTO) throws JsonProcessingException {
         User user = hostHolder.user.get();
         if (postDTO.getTitle() == null || postDTO.getTitle().isBlank())
             return new Result(INVALID, "标题不能为空", null);
@@ -96,6 +96,8 @@ public class PostController {
             return new Result(ILLEGAL, "尚未登录", null);
         Post post = Factory.newPost(user.getId(), postDTO.getTitle(), postDTO.getContent());
         postService.add(post);
+        //存入elastic
+        eventProducer.fireEvent(new Event().setTopic(TOPIC_ELASTIC_SEARCH).addProperty("id", post.getId()));
         BeanUtils.copyProperties(post, postDTO);
         return Result.getSuccess(postDTO);
     }

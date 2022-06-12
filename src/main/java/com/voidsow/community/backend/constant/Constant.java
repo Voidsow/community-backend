@@ -41,6 +41,7 @@ public final class Constant {
     static public String TOPIC_COMMENT = "comment";
     static public String TOPIC_LIKE = "like";
     static public String TOPIC_FOLLOW = "follow";
+    static public String TOPIC_ELASTIC_SEARCH = "search";
 
     //通知类型
     static public int LIKE = 0;
