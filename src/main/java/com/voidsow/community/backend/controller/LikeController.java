@@ -1,6 +1,7 @@
 package com.voidsow.community.backend.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.voidsow.community.backend.annotation.LoginRequire;
 import com.voidsow.community.backend.dto.Like;
 import com.voidsow.community.backend.dto.Result;
 import com.voidsow.community.backend.entity.Event;
@@ -35,6 +36,7 @@ public class LikeController {
         this.eventProducer = eventProducer;
     }
 
+    @LoginRequire
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public Result like(@RequestBody Like like) throws JsonProcessingException {
         User user = hostHolder.user.get();

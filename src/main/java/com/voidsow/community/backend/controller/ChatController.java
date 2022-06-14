@@ -1,5 +1,6 @@
 package com.voidsow.community.backend.controller;
 
+import com.voidsow.community.backend.annotation.LoginRequire;
 import com.voidsow.community.backend.dto.Conversation;
 import com.voidsow.community.backend.dto.Result;
 import com.voidsow.community.backend.entity.Chat;
@@ -39,6 +40,7 @@ public class ChatController {
         this.userService = userService;
     }
 
+    @LoginRequire
     @GetMapping
     public Result getChatList(int page, @RequestParam("size") int pageSize) {
         User user = hostHolder.user.get();
@@ -68,6 +70,7 @@ public class ChatController {
         return Result.getSuccess(map);
     }
 
+    @LoginRequire
     @GetMapping("/{uid}")
     public Result getChatDetail(@PathVariable("uid") int talkToUid) {
         User user = hostHolder.user.get();
@@ -93,6 +96,7 @@ public class ChatController {
         return Result.getSuccess(map);
     }
 
+    @LoginRequire
     @PostMapping(produces = "application/json")
     @ResponseBody
     public Result sendMessage(@RequestBody Chat message) {

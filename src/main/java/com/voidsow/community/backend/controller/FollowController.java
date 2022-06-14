@@ -1,6 +1,7 @@
 package com.voidsow.community.backend.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.voidsow.community.backend.annotation.LoginRequire;
 import com.voidsow.community.backend.dto.Result;
 import com.voidsow.community.backend.dto.UserDTO;
 import com.voidsow.community.backend.entity.Event;
@@ -66,6 +67,7 @@ public class FollowController {
     }
 
     //必须由服务器检验关注情况
+    @LoginRequire
     @PostMapping(value = "/follow/{uid}")
     @ResponseBody
     public Result follow(@PathVariable("uid") int followeeId) throws JsonProcessingException {

@@ -1,12 +1,16 @@
 package com.voidsow.community.backend.controller;
 
 import com.google.code.kaptcha.Producer;
+import com.voidsow.community.backend.annotation.LoginRequire;
+import com.voidsow.community.backend.annotation.TokenRequire;
 import com.voidsow.community.backend.constant.Activation;
 import com.voidsow.community.backend.dto.LoginInfo;
 import com.voidsow.community.backend.dto.Result;
 import com.voidsow.community.backend.entity.User;
 import com.voidsow.community.backend.service.UserService;
 import com.voidsow.community.backend.utils.Authorizer;
+import com.voidsow.community.backend.utils.HostHolder;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -16,11 +20,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.imageio.ImageIO;
 import javax.mail.MessagingException;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -33,6 +36,7 @@ public class AuthController {
     UserService userService;
     Producer captchaProducer;
     StringRedisTemplate strRedisTemplate;
+    HostHolder hostHolder;
     private Authorizer authorizer;
 
     @Value("${server.servlet.context-path}")
@@ -45,11 +49,13 @@ public class AuthController {
     private int LONG_TERM;
 
     @Autowired
-    public AuthController(UserService userService, Producer captchaProducer, Authorizer authorizer, StringRedisTemplate strRedisTemplate) {
+    public AuthController(UserService userService, Producer captchaProducer, Authorizer authorizer,
+                          StringRedisTemplate strRedisTemplate, HostHolder hostHolder) {
         this.userService = userService;
         this.captchaProducer = captchaProducer;
         this.authorizer = authorizer;
         this.strRedisTemplate = strRedisTemplate;
+        this.hostHolder = hostHolder;
     }
 
     @GetMapping(value = "/captcha", produces = MediaType.IMAGE_PNG_VALUE)
@@ -93,7 +99,7 @@ public class AuthController {
     }
 
     @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Result login(@RequestBody LoginInfo info, HttpSession session, HttpServletResponse response) {
+    public Result login(@RequestBody LoginInfo info, HttpSession session) {
         String answer = strRedisTemplate.opsForValue().get("captcha" + session.getId());
         Result result = new Result(SUCCESS, "ok", null);
         if (answer == null) {
@@ -107,21 +113,21 @@ public class AuthController {
         userService.login(info.getUsername(), info.getPsw(), result);
         if (result.getCode() == SUCCESS) {
             User user = (User) result.getData();
-            authorizer.generateToken(user, duration);
-            Cookie token = new Cookie("token", authorizer.generateToken(user, duration));
-            token.setPath(contextPath);
-            token.setMaxAge(duration);
-            response.addCookie(token);
+            Map<String, Object> map = new HashMap<>();
+            map.put("token", authorizer.generateToken(user, duration));
+            map.put("user", user);
+            result.setData(map);
         }
         return result;
     }
 
-    @GetMapping("/logout")
-    public Result logout(@CookieValue(value = "token", required = false) Cookie cookie, HttpServletResponse response) {
-        if (cookie != null) {
-            cookie.setMaxAge(0);
-            response.addCookie(cookie);
-        }
+    @TokenRequire
+    @LoginRequire
+    @PostMapping("/logout")
+    public Result logout(@RequestAttribute("token") Claims claims) {
+        long duration = claims.getExpiration().getTime() - System.currentTimeMillis() / 1000;
+        strRedisTemplate.opsForValue().set("blacklist:" + claims.getId(), "0",
+                Math.max(0, duration), TimeUnit.SECONDS);
         return Result.getSuccess(null);
     }
 }

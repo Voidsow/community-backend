@@ -18,12 +18,8 @@ public class ExceptionAdvice {
     ObjectMapper objectMapper = new ObjectMapper();
 
     @ExceptionHandler({Exception.class})
-    public void handleException(Exception e, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        logger.error("服务器内部异常：" + e.getMessage());
-        for (var element : e.getStackTrace())
-            logger.error(element.toString());
-
+    public void handleException(Exception e, HttpServletResponse response) throws IOException {
         response.setContentType("application/json;charset=utf-8");
-        response.getWriter().write(objectMapper.writeValueAsString(new Result(500, "server internal error", null)));
+        response.getWriter().write(objectMapper.writeValueAsString(Result.illegalAccess()));
     }
 }

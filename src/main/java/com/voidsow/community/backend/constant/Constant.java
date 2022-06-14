@@ -29,6 +29,7 @@ public final class Constant {
 
     //通信状态码
     static public int SUCCESS = 200;
+    static public int UNAUTHORIZED = 401;
     static public int INCORRECT = 600;
     static public int EXPIRED = 601;
     static public int INVALID = 602;

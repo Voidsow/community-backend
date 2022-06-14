@@ -26,8 +26,4 @@ public class IndexController {
         return new Result(200, "ok", postService.getPosts(null, page, size));
     }
 
-    @GetMapping("/error")
-    public String error() {
-        return "error/500";
-    }
 }

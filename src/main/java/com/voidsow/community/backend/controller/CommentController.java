@@ -1,6 +1,7 @@
 package com.voidsow.community.backend.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.voidsow.community.backend.annotation.LoginRequire;
 import com.voidsow.community.backend.dto.CommentDTO;
 import com.voidsow.community.backend.dto.CommentPOST;
 import com.voidsow.community.backend.dto.Result;
@@ -39,8 +40,9 @@ public class CommentController {
         this.hostHolder = hostHolder;
     }
 
+    @LoginRequire
     @PostMapping(value = "/comment", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Result getMapping(@RequestBody CommentPOST commentPOST) throws JsonProcessingException {
+    public Result pubComment(@RequestBody CommentPOST commentPOST) throws JsonProcessingException {
         User user = hostHolder.user.get();
         Comment comment = new Comment();
         int pid = commentPOST.getPid();

@@ -1,6 +1,7 @@
 package com.voidsow.community.backend.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.voidsow.community.backend.annotation.LoginRequire;
 import com.voidsow.community.backend.dto.CommentDTO;
 import com.voidsow.community.backend.dto.PostDTO;
 import com.voidsow.community.backend.dto.Result;
@@ -16,7 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.voidsow.community.backend.constant.Constant.*;
 
@@ -28,16 +32,17 @@ public class PostController {
     CommentService commentService;
     LikeService likeService;
     EventProducer eventProducer;
-    private HostHolder hostHolder;
+    private final HostHolder hostHolder;
 
     @Autowired
     public PostController(PostService postService, UserService userService,
                           CommentService commentService, HostHolder hostHolder,
-                          LikeService likeService) {
+                          LikeService likeService, EventProducer eventProducer) {
         this.postService = postService;
         this.userService = userService;
         this.commentService = commentService;
         this.likeService = likeService;
+        this.eventProducer = eventProducer;
         this.hostHolder = hostHolder;
     }
 
@@ -85,6 +90,7 @@ public class PostController {
         return new Result(200, "ok", map);
     }
 
+    @LoginRequire
     @PostMapping
     public Result addPost(@RequestBody PostDTO postDTO) throws JsonProcessingException {
         User user = hostHolder.user.get();
@@ -92,8 +98,6 @@ public class PostController {
             return new Result(INVALID, "标题不能为空", null);
         else if (postDTO.getContent() == null || postDTO.getContent().isBlank())
             return new Result(INVALID, "内容不能为空", null);
-        else if (user == null)
-            return new Result(ILLEGAL, "尚未登录", null);
         Post post = Factory.newPost(user.getId(), postDTO.getTitle(), postDTO.getContent());
         postService.add(post);
         //存入elastic

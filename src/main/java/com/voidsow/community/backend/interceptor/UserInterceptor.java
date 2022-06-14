@@ -1,5 +1,8 @@
 package com.voidsow.community.backend.interceptor;
 
+import com.voidsow.community.backend.annotation.TokenRequire;
+import com.voidsow.community.backend.entity.User;
+import com.voidsow.community.backend.exception.IllegalAccessException;
 import com.voidsow.community.backend.service.UserService;
 import com.voidsow.community.backend.utils.Authorizer;
 import com.voidsow.community.backend.utils.HostHolder;
@@ -9,11 +12,12 @@ import io.jsonwebtoken.Jwts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.security.Key;
@@ -22,33 +26,39 @@ import java.security.Key;
 public class UserInterceptor implements HandlerInterceptor {
     static Logger logger = LoggerFactory.getLogger(UserInterceptor.class);
     Key key;
+    StringRedisTemplate strRedisTemplate;
     HostHolder hostHolder;
     Authorizer authorizer;
-    UserService userService;
 
     @Autowired
-    public UserInterceptor(Key key, HostHolder hostHolder, Authorizer authorizer, UserService userService) {
+    public UserInterceptor(Key key, StringRedisTemplate strRedisTemplate, HostHolder hostHolder, Authorizer authorizer) {
         this.key = key;
+        this.strRedisTemplate = strRedisTemplate;
         this.hostHolder = hostHolder;
         this.authorizer = authorizer;
-        this.userService = userService;
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null)
-            for (var cookie : cookies)
-                if (cookie.getName().equals("token")) {
-                    logger.debug(String.format("token%s", cookie.getValue()));
-                    try {
-                        Jws<Claims> claimsJws = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(cookie.getValue());
-                        hostHolder.user.set(userService.findById(Integer.parseInt(claimsJws.getBody().getAudience())));
-                    } catch (Exception e) {
-                        cookie.setMaxAge(0);
-                        response.addCookie(cookie);
-                    }
-                }
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        String header = request.getHeader("Authorization");
+        String[] auth = header != null ? header.split(" ") : null;
+        if (auth != null && auth.length > 1) {
+            String tokenStr = auth[1];
+            logger.debug(String.format("token%s", tokenStr));
+            try {
+                Jws<Claims> claimsJws = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(tokenStr);
+                String jti = claimsJws.getBody().getId();
+                //检查是否在黑名单里
+                if (strRedisTemplate.opsForValue().get("blacklist:" + jti) != null)
+                    throw new IllegalAccessException();
+                if (((HandlerMethod) handler).getMethod().getAnnotation(TokenRequire.class) != null)
+                    request.setAttribute("token", claimsJws.getBody());
+                User user = new User();
+                user.setId(Integer.parseInt(claimsJws.getBody().getAudience()));
+                hostHolder.user.set(user);
+            } catch (Exception ignored) {
+            }
+        }
         return true;
     }
 
