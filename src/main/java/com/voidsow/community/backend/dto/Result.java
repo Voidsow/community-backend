@@ -27,4 +27,8 @@ public class Result {
     public static Result illegalAccess() {
         return new Result(ILLEGAL, "illegal access", null);
     }
+
+    public static Result incorrectArgument(String message) {
+        return new Result(INCORRECT, message, null);
+    }
 }

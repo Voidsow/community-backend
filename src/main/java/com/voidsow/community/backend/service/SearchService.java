@@ -9,6 +9,13 @@ import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.context.event.ApplicationContextInitializedEvent;
+import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHits;
@@ -16,7 +23,9 @@ import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.ServletConfigAware;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,13 +36,9 @@ public class SearchService {
     private final PostService postService;
 
     @Autowired
-    public SearchService(PostMapper postMapper, PostRepository postRepository, ElasticsearchRestTemplate searchTemplate, PostService postService) {
+    public SearchService(ElasticsearchRestTemplate searchTemplate, PostService postService) {
         this.searchTemplate = searchTemplate;
         this.postService = postService;
-
-        //将数据库已有的所有post写到elastic中
-        postRepository.deleteAll();
-        postRepository.saveAll(postMapper.selectByExampleWithBLOBs(new PostExample()));
     }
 
     public Map<String, Object> search(String keyword, int page, int pageSize) {

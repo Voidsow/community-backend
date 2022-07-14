@@ -5,7 +5,27 @@
 <mapper namespace="com.voidsow.community.backend.mapper.CustomPostMapper">
     <insert id="insert" parameterType="Post" useGeneratedKeys="true" keyProperty="id">
         insert into post (uid, title, content, type, status, gmt_create, gmt_modified, comment_num, score)
-        values (#{uid}, #{title}, #{content}, #{type}, #{status}, #{gmtCreate}, #{gmtModified}, #{commentNum},#{score});
+        values (#{uid}, #{title}, #{content}, #{type}, #{status}, #{gmtCreate}, #{gmtModified}, #{commentNum},
+                #{score});
     </insert>
-
+    <select id="selectByUid" resultType="Post">
+        select *
+        from post
+        <where>
+            <foreach collection="followees" item="followee" open="uid in (" separator="," close=")">
+                #{followee}
+            </foreach>
+        </where>
+        order by gmt_create desc
+        limit #{offset},#{limit};
+    </select>
+    <select id="countByUid" resultType="long">
+        select count(*)
+        from post
+        <where>
+            <foreach collection="followees" item="followee" open="uid in (" separator="," close=")">
+                #{followee}
+            </foreach>
+        </where>
+    </select>
 </mapper>

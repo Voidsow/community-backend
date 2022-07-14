@@ -53,27 +53,21 @@ public class UserService {
                 likeService.getLike(observed.getId()));
     }
 
-    public Map<String, Object> register(User user, String confirmPsw) throws MessagingException {
-        Map<String, Object> map = new HashMap<>();
+    public String register(User user) throws MessagingException {
         if (user.getUsername() == null)
-            map.put("usernameMsg", "用户名不能为空");
+            return "用户名不能为空";
         if (user.getPassword() == null)
-            map.put("passwordMsg", "密码不能为空");
-        else if (!user.getPassword().equals(confirmPsw))
-            map.put("confirmPswMsg", "两次输入密码不一致");
+            return "密码不能为空";
         if (user.getEmail() == null)
-            map.put("emailMsg", "邮箱不能为空");
+            return "邮箱不能为空";
         UserExample userExample = new UserExample();
         userExample.createCriteria().andUsernameEqualTo(user.getUsername());
         if (!userMapper.selectByExample(userExample).isEmpty())
-            map.put("usernameMsg", "用户名已经被使用");
+            return "用户名已经被使用";
         userExample.clear();
         userExample.createCriteria().andEmailEqualTo(user.getEmail());
         if (!userMapper.selectByExample(userExample).isEmpty())
-            map.put("emailMsg", "邮箱已经被注册");
-        //登录信息不合法则直接返回
-        if (!map.isEmpty())
-            return map;
+            return "邮箱已经被注册";
 
         user.setSalt(generateUUID());
         user.setPassword(DigestUtils.md5DigestAsHex((user.getPassword() + user.getSalt()).getBytes()));
@@ -86,7 +80,7 @@ public class UserService {
         user.setGmtModified(user.getGmtCreate());
         userMapper.insertSelective(user);
         mailClient.sendActivationEmail(user.getEmail(), user.getActivationCode());
-        return map;
+        return null;
     }
 
     public Activation activate(String activationCode) {
@@ -123,6 +117,11 @@ public class UserService {
             return;
         }
         User user = users.get(0);
+        if (user.getStatus().equals(UNACTIVATED)) {
+            result.setCode(INCORRECT);
+            result.setMessage("账号尚未激活");
+            return;
+        }
         if (!DigestUtils.md5DigestAsHex((password + user.getSalt()).getBytes()).
                 equals(user.getPassword())) {
             result.setCode(INCORRECT);
@@ -137,5 +136,15 @@ public class UserService {
         user.setId(userId);
         user.setHeaderUrl(headerUrl);
         userMapper.updateByPrimaryKeySelective(user);
+    }
+
+    public String updatePassword(int uid, String former, String present) {
+        User user = userMapper.selectByPrimaryKey(uid);
+        if (!DigestUtils.md5DigestAsHex((former + user.getSalt()).getBytes())
+                .equals(user.getPassword()))
+            return "原密码错误";
+        user.setPassword(DigestUtils.md5DigestAsHex((present + user.getSalt()).getBytes()));
+        userMapper.updateByPrimaryKey(user);
+        return null;
     }
 }

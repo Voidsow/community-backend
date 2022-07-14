@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.MediaType;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.imageio.ImageIO;
@@ -32,7 +31,7 @@ import static com.voidsow.community.backend.constant.Activation.SUCCEESS;
 import static com.voidsow.community.backend.constant.Constant.*;
 
 @RestController
-public class AuthController {
+    public class AuthController {
     UserService userService;
     Producer captchaProducer;
     StringRedisTemplate strRedisTemplate;
@@ -68,34 +67,25 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String register(User user, @RequestParam("confirm-psw") String confirmPsw, Model model) throws MessagingException {
-        Map<String, Object> result = userService.register(user, confirmPsw);
-        if (result.isEmpty()) {
-            model.addAttribute("msg", "注册成功，激活邮件已发往您的邮箱，请前往邮箱查看！");
-            model.addAttribute("targetLink", "/");
-            return "operate-result";
+    public Result register(@RequestBody User user) throws MessagingException {
+        String result = userService.register(user);
+        if (result == null) {
+            return Result.getSuccess(null);
         } else {
-            model.addAllAttributes(result);
-            model.addAttribute("user", user);
-            return "register";
+            return Result.incorrectArgument(result);
         }
     }
 
-    @GetMapping("/activate/{activationCode}")
-    public String activate(@PathVariable("activationCode") String activationCode,
-                           Model model) {
+    @PostMapping("/activate/{activationCode}")
+    public Result activate(@PathVariable("activationCode") String activationCode) {
         Activation result = userService.activate(activationCode);
         if (result == SUCCEESS) {
-            model.addAttribute("msg", "激活成功，跳转到登录页面");
-            model.addAttribute("targetLink", "/login");
+            return Result.getSuccess(null);
         } else if (result == ACTIVATED) {
-            model.addAttribute("msg", "该账号已被激活！");
-            model.addAttribute("targetLink", "/index");
+            return new Result(INCORRECT, "重复激活", null);
         } else {
-            model.addAttribute("msg", "激活链接无效！");
-            model.addAttribute("targetLink", "/index");
+            return new Result(INVALID, "激活链接无效", null);
         }
-        return "operate-result";
     }
 
     @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -125,7 +115,7 @@ public class AuthController {
     @LoginRequire
     @PostMapping("/logout")
     public Result logout(@RequestAttribute("token") Claims claims) {
-        long duration = claims.getExpiration().getTime() - System.currentTimeMillis() / 1000;
+        long duration = (claims.getExpiration().getTime() - System.currentTimeMillis()) / 1000;
         strRedisTemplate.opsForValue().set("blacklist:" + claims.getId(), "0",
                 Math.max(0, duration), TimeUnit.SECONDS);
         return Result.getSuccess(null);

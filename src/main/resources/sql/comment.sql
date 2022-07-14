@@ -14,3 +14,13 @@ insert into comment(post_id,uid, type, reply_to, reply_to_uid, content, gmt_crea
 values (1,9,1,5,null,'顶你上去','2021-12-18 12:39','2021-12-18 12:39');
 insert into comment(post_id,uid, type, reply_to, reply_to_uid, content, gmt_create, gmt_modified)
 values (1,9,1,5,8,'继续顶','2021-12-18 12:39','2021-12-18 12:39');
+insert into comment(post_id,uid, type, reply_to, reply_to_uid, content, gmt_create, gmt_modified)
+values (2,2,0,2,null,'这是一条回复0','2021-12-18 12:39','2021-12-18 12:39');
+insert into comment(post_id,uid, type, reply_to, reply_to_uid, content, gmt_create, gmt_modified)
+values (2,2,0,2,null,'这是另一条回复0','2021-12-18 12:39','2021-12-18 12:39');
+insert into comment(post_id,uid, type, reply_to, reply_to_uid, content, gmt_create, gmt_modified)
+values (3,2,0,3,null,'这是一条回复1','2021-12-18 12:39','2021-12-18 12:39');
+insert into comment(post_id,uid, type, reply_to, reply_to_uid, content, gmt_create, gmt_modified)
+values (3,2,0,3,null,'这是另一条回复1','2021-12-18 12:39','2021-12-18 12:39');
+insert into comment(post_id,uid, type, reply_to, reply_to_uid, content, gmt_create, gmt_modified)
+values (4,2,0,4,null,'这是一条回复2','2021-12-18 12:39','2021-12-18 12:39');

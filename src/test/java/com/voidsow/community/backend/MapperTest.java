@@ -4,10 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.voidsow.community.backend.mapper.ChatMapper;
 import com.voidsow.community.backend.mapper.CustomChatMapper;
+import com.voidsow.community.backend.mapper.CustomPostMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @SpringBootTest
 public class MapperTest {
@@ -17,8 +21,12 @@ public class MapperTest {
 
     @Autowired
     ChatMapper chatMapper;
+
     @Autowired
     CustomChatMapper customChatMapper;
+
+    @Autowired
+    CustomPostMapper customPostMapper;
 
     @Test
     void testGetChat() {
@@ -41,5 +49,12 @@ public class MapperTest {
                 e.printStackTrace();
             }
         });
+    }
+
+    @Test
+    void testBlobSelect() throws JsonProcessingException {
+        Set<Integer> uids = new HashSet<>();
+        uids.add(4);
+        System.out.println(objectMapper.writeValueAsString(customPostMapper.selectByUid(uids, 0, Integer.MAX_VALUE)));
     }
 }

@@ -8,17 +8,16 @@ import com.voidsow.community.backend.mapper.CustomPostMapper;
 import com.voidsow.community.backend.mapper.PostMapper;
 import com.voidsow.community.backend.mapper.UserMapper;
 import com.voidsow.community.backend.utils.HostHolder;
+import com.voidsow.community.backend.utils.RedisKey;
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static com.voidsow.community.backend.constant.Constant.LIKE_POST;
+import static com.voidsow.community.backend.constant.Constant.*;
 
 @Service
 public class PostService {
@@ -27,15 +26,17 @@ public class PostService {
     UserMapper userMapper;
     LikeService likeService;
     HostHolder hostHolder;
+    RedisTemplate<String, Integer> intRedisTemplate;
 
     @Autowired
-    public PostService(PostMapper postMapper, CustomPostMapper customPostMapper,
-                       UserMapper userMapper, LikeService likeService, HostHolder hostHolder) {
+    public PostService(PostMapper postMapper, CustomPostMapper customPostMapper, UserMapper userMapper,
+                       LikeService likeService, HostHolder hostHolder, RedisTemplate<String, Integer> intRedisTemplate) {
         this.postMapper = postMapper;
         this.customPostMapper = customPostMapper;
         this.userMapper = userMapper;
         this.likeService = likeService;
         this.hostHolder = hostHolder;
+        this.intRedisTemplate = intRedisTemplate;
     }
 
     public Map<String, Object> encapsulatePosts(List<Post> posts, long total, int pageSize) {
@@ -57,13 +58,32 @@ public class PostService {
         return map;
     }
 
-    public Map<String, Object> getPosts(Integer uid, int pageNo, int pageSize) {
+    public Map<String, Object> getPosts(Integer uid, int pageNo, int pageSize, int order) {
         PostExample postExample = new PostExample();
-        if (uid != null)
-            postExample.createCriteria().andUidEqualTo(uid);
-        List<Post> posts = postMapper.selectByExampleWithBLOBsWithRowbounds(
-                postExample, new RowBounds((pageNo - 1) * pageSize, pageSize));
-        return encapsulatePosts(posts, postMapper.countByExample(postExample), pageSize);
+        List<Post> posts;
+        long count;
+        if (order == ORDER_BY_FOLLOW) {
+            Set<Integer> range = intRedisTemplate.opsForZSet().range(RedisKey.getKey(uid, RedisKey.FOLLOWEE), 0, -1);
+            if (range.isEmpty()) {
+                posts = new ArrayList<>();
+                count = 0;
+            } else {
+                posts = customPostMapper.selectByUid(range, (pageNo - 1) * pageSize, pageSize);
+                count = customPostMapper.countByUid(range);
+            }
+        } else {
+            postExample.setOrderByClause(order == ORDER_BY_NEWEST ? "gmt_create desc" : "score desc");
+            posts = postMapper.selectByExampleWithBLOBsWithRowbounds(postExample, new RowBounds((pageNo - 1) * pageSize, pageSize));
+            count = postMapper.countByExample(postExample);
+        }
+        return encapsulatePosts(posts, count, pageSize);
+    }
+
+    public List<Post> getPostsByUid(int uid) {
+        PostExample postExample = new PostExample();
+        postExample.createCriteria().andUidEqualTo(uid);
+        postExample.setOrderByClause("gmt_create desc");
+        return postMapper.selectByExampleWithBLOBs(postExample);
     }
 
     public Post get(Integer id) {

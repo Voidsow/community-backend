@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title th:text="|欢迎注册${brand}|">欢迎注册</title>
+</head>
+<body>
+<div>
+    <p>
+        您正在注册<span th:text="${brand}"></span>。请点击下面的链接以激活账户。
+    </p>
+    <p><a th:href="${activationLink}" th:text="${activationLink}">链接</a></p>
+    <p>
+        如果不是您本人在注册，请忽略并确认邮箱不被他人使用。
+    </p>
+</div>
+</body>
+</html>

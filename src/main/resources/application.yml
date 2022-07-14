@@ -5,16 +5,16 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/community
-    username: root
-    password: root
+    url: jdbc:mysql://
+    username:
+    password:
   sql:
     init:
-      mode: always
       data-locations: classpath:sql/*.sql
+      mode: always
   mail:
-    host: smtp.163.com
-    port: 465
+    host:
+    port:
     username:
     password:
     properties:
@@ -26,14 +26,18 @@ spring:
           ssl:
             enable: true
   redis:
+    host:
     database: 1
+    password:
   rabbitmq:
-    host: localhost
+    host:
+    username: admin
+    password: 123456
     listener:
       direct:
         acknowledge-mode: none
   elasticsearch:
-    
+
 
 mybatis:
   configuration:
@@ -44,7 +48,10 @@ mybatis:
 
 logging:
   level:
-    com.voidsow.community.CommunityApplicationTests: warn
+    com:
+      voidsow:
+        community:
+          backend:
 
 test:
   mail:
@@ -53,10 +60,12 @@ test:
 community:
   # 社区名
   brand: Café Stella
-  # 域名
-  domain: http://localhost:8080
+  # 前端
+  domain: localhost:8080
+  backend: localhost:8081
   path:
-    upload: C:/Users/voidsow/Desktop
+  # 文件上传路径
+    upload:
   # 分页配置
   page:
     # 页大小

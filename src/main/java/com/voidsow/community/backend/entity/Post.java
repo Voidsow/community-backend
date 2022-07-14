@@ -1,5 +1,6 @@
 package com.voidsow.community.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
@@ -7,6 +8,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.util.Date;
 
+@JsonIgnoreProperties(value = {"uid", "type", "status", "score"}, allowSetters = true)
 @Document(indexName = "post")
 public class Post {
     @Id

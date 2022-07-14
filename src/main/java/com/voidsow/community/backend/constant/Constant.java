@@ -48,4 +48,9 @@ public final class Constant {
     static public int LIKE = 0;
     static public int COMMENT = 1;
     static public int FOLLOW = 2;
+
+    //排序方式
+    static public final int ORDER_BY_NEWEST = 3;
+    static public final int ORDER_BY_RECCOMEND = 4;
+    static public final int ORDER_BY_FOLLOW = 5;
 }
